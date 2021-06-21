@@ -1,6 +1,7 @@
 package ar.edu.unahur.obj2.servidorWeb
 
 import io.kotest.core.spec.style.DescribeSpec
+import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import java.time.LocalDateTime
 
@@ -43,7 +44,7 @@ class ServidorWebTest : DescribeSpec({
 
     describe("IP sospechosa"){
       it("Cantidad de pedidos"){
-        val analizadorCantidadDePedidosIP = PedidosDeIP("192.168.1.13")
+        val analizadorCantidadDePedidosIP = IpDeBusqueda("192.168.1.13")
         servidorWeb.agregarAnalizador(analizadorCantidadDePedidosIP)
         val pedido = Pedido("192.168.1.13","http://pepito.com.ar/documentos/doc1.html", LocalDateTime.now())
         val pedido2 = Pedido("192.168.1.14","http://pepito.com.ar/documentos/doc1.html", LocalDateTime.now())
@@ -51,15 +52,65 @@ class ServidorWebTest : DescribeSpec({
         servidorWeb.realizarPedido(pedido)
         servidorWeb.realizarPedido(pedido2)
         servidorWeb.realizarPedido(pedido3)
+
         analizadorCantidadDePedidosIP.cantidadpedidosDeIP().shouldBe(2)
       }
 
       it("Modulo mas consultado por todas las ips sospechosas"){
+        val analizadorModuloMasconsultado = ModuloMasConsultado()
+        servidorWeb.agregarAnalizador(analizadorModuloMasconsultado)
+        val pedido = Pedido("192.168.1.13","http://pepito.com.ar/documentos/doc1.html", LocalDateTime.now())
+        val pedido2 = Pedido("192.168.1.14","http://pepito.com.ar/documentos/doc1.html", LocalDateTime.now())
+        val pedido3 = Pedido("192.168.1.13","http://pepito.com.ar/documentos/doc1.html", LocalDateTime.now())
+        servidorWeb.realizarPedido(pedido)
+        servidorWeb.realizarPedido(pedido2)
+        servidorWeb.realizarPedido(pedido3)
+
+        //analizadorModuloMasconsultado.buscarPedido("192.168.1.13").shouldBe("asd")
 
       }
+
+      it("Conjunto de ips que buscaron una ruta especifica"){
+        val analizadorConjuntoDeIPQueBuscaron = ConjuntoDeIPQueBuscaron()
+        servidorWeb.agregarAnalizador(analizadorConjuntoDeIPQueBuscaron)
+        val pedido = Pedido("192.168.1.13","http://pepito.com.ar/documentos/doc1.html", LocalDateTime.now())
+        val pedido2 = Pedido("192.168.1.14","http://pepito.com.ar/documentos/doc1.html", LocalDateTime.now())
+        val pedido3 = Pedido("192.168.1.13","http://pepito.com.ar/documentos/doc1.html", LocalDateTime.now())
+        servidorWeb.realizarPedido(pedido)
+        servidorWeb.realizarPedido(pedido2)
+        servidorWeb.realizarPedido(pedido3)
+
+        analizadorConjuntoDeIPQueBuscaron.buscaronLaRuta("http://pepito.com.ar/documentos/doc1.html").shouldBe(3)
+      }
+
+      it("Estadisticas "){
+        val analizadorEstadisticas = Estadisticas()
+        servidorWeb.agregarAnalizador(analizadorEstadisticas)
+        val pedido = Pedido("192.168.1.13","http://pepito.com.ar/documentos/doc1.html", LocalDateTime.now())
+        val pedido2 = Pedido("192.168.1.14","http://pepito.com.ar/documentos/doc1.html", LocalDateTime.now())
+
+        servidorWeb.realizarPedido(pedido)
+        servidorWeb.realizarPedido(pedido2)
+
+
+        analizadorEstadisticas.tiempoRespuestaPromedio().shouldBe(10)
+      }
+      it("Cantidad respuestas con un body determinado "){
+        val analizadorEstadisticas = Estadisticas()
+        servidorWeb.agregarAnalizador(analizadorEstadisticas)
+        val pedido = Pedido("192.168.1.13","http://pepito.com.ar/documentos/doc1.html", LocalDateTime.now())
+        val pedido2 = Pedido("192.168.1.14","http://pepito.com.ar/documentos/doc1.html", LocalDateTime.now())
+
+        servidorWeb.realizarPedido(pedido)
+        servidorWeb.realizarPedido(pedido2)
+
+
+        analizadorEstadisticas.cantidadRespuestasConBody("").shouldBe(2)
+      }
+
     }
 
-
-
   }
+
+
 })

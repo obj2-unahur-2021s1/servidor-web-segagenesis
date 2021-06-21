@@ -43,16 +43,19 @@ class ServidorWebTest : DescribeSpec({
 
     describe("IP sospechosa"){
       it("Cantidad de pedidos"){
-        val analizadorDeteccionDemoraRespuesta = DetecccionDemoraEnRespuesta(5)
-        servidorWeb.agregarAnalizador(analizadorDeteccionDemoraRespuesta)
+        val analizadorCantidadDePedidosIP = PedidosDeIP("192.168.1.13")
+        servidorWeb.agregarAnalizador(analizadorCantidadDePedidosIP)
         val pedido = Pedido("192.168.1.13","http://pepito.com.ar/documentos/doc1.html", LocalDateTime.now())
-        val pedido2 = Pedido("192.168.1.13","http://pepito.com.ar/documentos/doc1.html", LocalDateTime.now())
+        val pedido2 = Pedido("192.168.1.14","http://pepito.com.ar/documentos/doc1.html", LocalDateTime.now())
         val pedido3 = Pedido("192.168.1.13","http://pepito.com.ar/documentos/doc1.html", LocalDateTime.now())
         servidorWeb.realizarPedido(pedido)
         servidorWeb.realizarPedido(pedido2)
         servidorWeb.realizarPedido(pedido3)
+        analizadorCantidadDePedidosIP.cantidadpedidosDeIP().shouldBe(2)
+      }
 
-        analizadorDeteccionDemoraRespuesta.cantidadPedidosDeIP("192.168.1.13").shouldBe(3)
+      it("Modulo mas consultado por todas las ips sospechosas"){
+
       }
     }
 

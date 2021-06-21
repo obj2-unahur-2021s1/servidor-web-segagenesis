@@ -15,13 +15,23 @@ class Respuesta(val codigo: CodigoHttp, val body: String, val tiempo: Int, val p
 
 
 class ServidorWeb {
+  var modulos = mutableListOf<Modulo>()
+
+  fun agregarModulo(modulo: Modulo) = this.modulos.add(modulo)
 
   fun realizarPedido(pedido: Pedido): Respuesta {
-    return if (pedido.url.startsWith("http://")) {
-      Respuesta(CodigoHttp.OK,"",10,pedido)
+    if (!pedido.url.startsWith("http:")) {
+      return Respuesta(CodigoHttp.NOT_IMPLEMENTED,"",10,pedido)
+    }
+    if (this.algunModuloSoporta(pedido.url)) {
+      val modulo = this.modulos.find { it.puedeSoportar(pedido.url) }!!
+      return Respuesta(CodigoHttp.OK,modulo.body,modulo.tiempo,pedido)
     }
     else {
-      Respuesta(CodigoHttp.NOT_IMPLEMENTED,"",10,pedido)
+      return Respuesta(CodigoHttp.NOT_FOUND,"",10,pedido)
     }
   }
+
+  fun algunModuloSoporta(url: String) = this.modulos.any{it.puedeSoportar(url)}
 }
+

@@ -26,7 +26,19 @@ class ServidorWebTest : DescribeSpec({
         val respuesta = servidorWeb.realizarPedido(pedido)
         respuesta.codigo.shouldBe(CodigoHttp.NOT_FOUND)
       }
-    }
 
+    }
+    describe("Envia un pedido a un analizador") {
+      it("A Detección de demora en respuesta que se le pregunta la cantidad de respuestas demoradas.") {
+        val analizadorDeteccionDemoraRespuesta = DetecccionDemoraEnRespuesta(5)
+        servidorWeb.agregarAnalizador(analizadorDeteccionDemoraRespuesta)
+        val pedidoConDemora = Pedido("192.168.1.13","http://pepito.com.ar/documentos/doc1.html", LocalDateTime.now())
+        val pedidoSinDemora = Pedido("192.168.1.13","https://pepito.com.ar/documentos/doc1.html", LocalDateTime.now())
+        servidorWeb.realizarPedido(pedidoConDemora)
+        servidorWeb.realizarPedido(pedidoSinDemora)
+        analizadorDeteccionDemoraRespuesta.cantRespuestasDemoradas().shouldBe(1)
+
+      }
+    }
   }
 })

@@ -19,7 +19,7 @@ class DetecccionDemoraEnRespuesta(val minTiempoDemora: Int): Analizador(){
   fun esRespuestaDemorada(respuesta: Respuesta) = respuesta.tiempo > this.minTiempoDemora
 }
 
-/*open class IpsSospechosas: Analizador(){
+open class IpsSospechosas: Analizador(){
   // En Ip Sospechosa modulo mas consultado
   var listaDeIpsSopechosas = mutableListOf<String>()
 
@@ -39,19 +39,17 @@ class DetecccionDemoraEnRespuesta(val minTiempoDemora: Int): Analizador(){
 
   fun cantidadpedidosDeIP(ip: String) = buscarPedidos(ip).size
 
-  fun cantidadQueRequirieronRuta(url : String): Int {
-    val listaux = listaDeRespuestasDeIPSospechosas.filter{respuesta: Respuesta -> respuesta.pedido.url == url}
-    return listaux.map{respuesta -> respuesta.pedido}.size
+  fun cantidadQueRequirieronRuta(url: String): Set<String> {
+    val aux = listaDeRespuestasDeIPSospechosas.filter { respuesta: Respuesta -> respuesta.pedido.url == url }
+    return aux.map{respuesta -> respuesta.pedido.ip}.toSet()
+  }
+
+  fun moduloMasConsultado(){
+
   }
 }
 
-class ModuloMasConsultado(): IpsSospechosas(){
-  fun elMasConsultado(){
 
-
-  }
-}
- */
 
 class Estadistica: Analizador() {
 

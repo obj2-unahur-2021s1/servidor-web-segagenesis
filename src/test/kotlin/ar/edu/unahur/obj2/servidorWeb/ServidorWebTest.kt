@@ -72,7 +72,7 @@ class ServidorWebTest : DescribeSpec({
           analizadorEstadistica.porcentajePedidosExitosos().shouldBe(100)
         }
       }
-/*
+
       describe(" A IP sospechosa") {
         val pedido = Pedido("192.168.1.13", "http://pepito.com.ar/documentos/doc1.html", LocalDateTime.now())
         val pedido2 = Pedido("192.168.1.14", "http://pepito.com.ar/documentos/doc1.html", LocalDateTime.now())
@@ -86,6 +86,7 @@ class ServidorWebTest : DescribeSpec({
           servidorWeb.realizarPedido(pedido)
           servidorWeb.realizarPedido(pedido2)
           servidorWeb.realizarPedido(pedido3)
+
           servidorWeb.realizarPedido(pedido4)
           analizadorCantidadDePedidosIP.listaDeIpsSopechosas.add("192.168.1.13")
           analizadorCantidadDePedidosIP.listaDeIpsSopechosas.add("192.168.1.14")
@@ -95,14 +96,14 @@ class ServidorWebTest : DescribeSpec({
         }
 
         it("Modulo mas consultado por todas las ips sospechosas") {
-          val analizadorModuloMasconsultado = ModuloMasConsultado()
+          val analizadorModuloMasconsultado = IpsSospechosas()
 
           servidorWeb.agregarAnalizador(analizadorModuloMasconsultado)
           servidorWeb.realizarPedido(pedido)
           servidorWeb.realizarPedido(pedido2)
           servidorWeb.realizarPedido(pedido3)
 
-          analizadorModuloMasconsultado.elMasConsultado().shouldBe("asd")
+          analizadorModuloMasconsultado.moduloMasConsultado().shouldBe("asd")
 
         }
 
@@ -120,11 +121,16 @@ class ServidorWebTest : DescribeSpec({
 
           analizadorCantidadDePedidosIP.establecerListaDeSospechosos()
 
-          analizadorCantidadDePedidosIP.cantidadQueRequirieronRuta("http://pepito.com.ar/documentos/doc1.html").shouldBe(3)
+          val ipsBuscadas = mutableSetOf<String>()
+
+          ipsBuscadas.add("192.168.1.13")
+          ipsBuscadas.add("192.168.1.14")
+
+
+          analizadorCantidadDePedidosIP.cantidadQueRequirieronRuta("http://pepito.com.ar/documentos/doc1.html").shouldBe(ipsBuscadas)
         }
       }
 
- */
     }
   }
 })

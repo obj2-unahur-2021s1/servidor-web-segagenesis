@@ -9,7 +9,6 @@ abstract class Analizador() {
   val respuestas = mutableListOf<Respuesta>()
   val modulos = mutableListOf<Modulo>()
 
-
 }
 
 class DetecccionDemoraEnRespuesta(val minTiempoDemora: Int): Analizador(){
@@ -21,24 +20,39 @@ class DetecccionDemoraEnRespuesta(val minTiempoDemora: Int): Analizador(){
 
 
 open class IpsSospechosas: Analizador(){
-  val listaDeIpsSopechosas = mutableListOf<String>()
-  val listaDePedidos = respuestas.map{respuesta -> respuesta.pedido}.toList()
+  var listaDeIpsSopechosas = mutableListOf<String>()
+  var listaDeRespuestasDeIPSospechosas = mutableSetOf<Respuesta>()
 
-  fun buscarPedido(ip: String): Set<Respuesta> = respuestas.filter { respuesta: Respuesta -> respuesta.pedido.ip == ip }.toSet()
+  fun establecerListaDeSospechosos(): MutableSet<Respuesta> {
+    while (listaDeIpsSopechosas.isNotEmpty()) {
+      if (listaDeIpsSopechosas.size > 0) {
+        listaDeRespuestasDeIPSospechosas.addAll(buscarPedidos(listaDeIpsSopechosas[0]))
+        listaDeIpsSopechosas.removeAt(0)
+      }
+    }
+    return listaDeRespuestasDeIPSospechosas
+  }
+
+  fun buscarPedidos(ip: String): MutableList<Respuesta> = respuestas.filter { respuesta: Respuesta -> respuesta.pedido.ip == ip }.toMutableList()
+
+  fun cantidadpedidosDeIP(ip: String) = buscarPedidos(ip).size
+
+  fun cantidadQueRequirieronRuta(url : String): Int {
+    val listaux = listaDeRespuestasDeIPSospechosas.filter{respuesta: Respuesta -> respuesta.pedido.url == url}
+    return listaux.map{respuesta -> respuesta.pedido}.size
+  }
 
 }
 
-class IpDeBusqueda(val ip: String): IpsSospechosas(){
-  fun cantidadpedidosDeIP() = listaDePedidos.count{pedido: Pedido -> pedido.ip == ip }
-}
 
 class ModuloMasConsultado(): IpsSospechosas(){
-  fun moduloMasConsultado() = listaDePedidos.map{pedido: Pedido -> pedido.url }
+  fun elMasConsultado(){
+
+
+  }
 }
 
-class ConjuntoDeIPQueBuscaron() : IpsSospechosas(){
-  fun buscaronLaRuta(ruta : String) = listaDePedidos.filter{pedido: Pedido -> pedido.url == ruta }
-}
+
 
 class Estadisticas: Analizador(){
   fun tiempoRespuestaPromedio(): Int = respuestas.map{respuesta -> respuesta.tiempo }.sum() / respuestas.map{respuesta -> respuesta.tiempo }.size
@@ -46,7 +60,8 @@ class Estadisticas: Analizador(){
   fun cantidadRespuestasConBody(body : String) = respuestas.count{respuesta: Respuesta -> respuesta.body == body }
 
 
+
 }
 
-// En Ip Sospechosa, registro de pedidos, modulo mas consultado
+// En Ip Sospechosa modulo mas consultado
 // En estadisticas falta cantidad de pedidos con respuesta exitosa, y entre dos momentos.

@@ -1,13 +1,14 @@
 package ar.edu.unahur.obj2.servidorWeb
 
-import java.sql.Time
-import java.sql.Timestamp
-import java.util.concurrent.TimeUnit
+import java.time.LocalDateTime
 
-abstract class Analizador() {
+abstract class Analizador {
 
   val respuestas = mutableListOf<Respuesta>()
   val modulos = mutableListOf<Modulo>()
+
+  fun pedidos() = this.respuestas.map { it.pedido }
+  fun cantidadPedidos() = this.respuestas.size
 
 }
 
@@ -18,9 +19,10 @@ class DetecccionDemoraEnRespuesta(val minTiempoDemora: Int): Analizador(){
   fun esRespuestaDemorada(respuesta: Respuesta) = respuesta.tiempo > this.minTiempoDemora
 }
 
-
-open class IpsSospechosas: Analizador(){
+/*open class IpsSospechosas: Analizador(){
+  // En Ip Sospechosa modulo mas consultado
   var listaDeIpsSopechosas = mutableListOf<String>()
+
   var listaDeRespuestasDeIPSospechosas = mutableSetOf<Respuesta>()
 
   fun establecerListaDeSospechosos(): MutableSet<Respuesta> {
@@ -41,9 +43,7 @@ open class IpsSospechosas: Analizador(){
     val listaux = listaDeRespuestasDeIPSospechosas.filter{respuesta: Respuesta -> respuesta.pedido.url == url}
     return listaux.map{respuesta -> respuesta.pedido}.size
   }
-
 }
-
 
 class ModuloMasConsultado(): IpsSospechosas(){
   fun elMasConsultado(){
@@ -51,17 +51,19 @@ class ModuloMasConsultado(): IpsSospechosas(){
 
   }
 }
+ */
 
+class Estadistica: Analizador() {
 
+  fun tiempoRespuestaPromedio() = respuestas.sumBy { it.tiempo } / respuestas.size
 
-class Estadisticas: Analizador(){
-  fun tiempoRespuestaPromedio(): Int = respuestas.map{respuesta -> respuesta.tiempo }.sum() / respuestas.map{respuesta -> respuesta.tiempo }.size
+  fun pedidosEntre(fecha1: LocalDateTime, fecha2: LocalDateTime) = this.pedidos().filter { it.fechaHora.isBefore(fecha2) and it.fechaHora.isAfter(fecha1) }.size
 
-  fun cantidadRespuestasConBody(body : String) = respuestas.count{respuesta: Respuesta -> respuesta.body == body }
+  fun cantidadRespuestasQueIncluyen(body :String) = respuestas.count{ it.body.contains(body) }
 
+  fun porcentajePedidosExitosos() = (this.pedidosExitosos() * 100) / this.cantidadPedidos()
 
-
+  fun pedidosExitosos() = this.respuestas.filter { it.esExitoso() }.map { it.pedido }.size
 }
 
-// En Ip Sospechosa modulo mas consultado
-// En estadisticas falta cantidad de pedidos con respuesta exitosa, y entre dos momentos.
+
